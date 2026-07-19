@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>INRD511 Week 2 | Look back. Get started. Ask.</title>
+<style>
+  :root{
+    --ink:#0e1a2b;
+    --ink-soft:#33455e;
+    --bg:#f2f5f9;
+    --panel:#ffffff;
+    --line:#dde5ee;
+    --red:#ef4444; --orange:#f97316; --yellow:#eab308;
+    --green:#22c55e; --blue:#3b82f6; --purple:#8b5cf6;
+    --slate:#64748b;
+    --mono:"SF Mono","Cascadia Code","Consolas","Menlo",monospace;
+    --sans:"Avenir Next","Segoe UI","Helvetica Neue",Arial,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.6;}
+  button{font-family:inherit;}
+
+  .wrap{max-width:760px;margin:0 auto;padding:0 16px 60px;}
+
+  /* ── header ── */
+  .topbar{position:sticky;top:0;z-index:20;background:var(--panel);border-bottom:1px solid var(--line);}
+  .topbar-inner{max-width:760px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;gap:12px;}
+  .topbar-title{font-family:var(--mono);font-size:12px;letter-spacing:0.06em;text-transform:uppercase;color:var(--ink-soft);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .savebtn{background:var(--ink);color:#fff;border:0;border-radius:6px;padding:7px 14px;font-size:13px;font-weight:600;cursor:pointer;flex-shrink:0;}
+  .savebtn:hover{background:#1c2f4a;}
+  .progress{display:flex;height:6px;}
+  .progress span{flex:1;background:var(--line);transition:background .3s;}
+  .progress span.done-1{background:var(--slate);}
+  .progress span.done-2{background:var(--orange);}
+  .progress span.done-3{background:var(--blue);}
+  .progress span.done-4{background:var(--purple);}
+
+  /* ── level cards on home ── */
+  .hero{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:28px 26px;margin:24px 0 16px;}
+  .hero h1{margin:0 0 6px;font-size:26px;line-height:1.25;}
+  .hero .kicker{font-family:var(--mono);font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-soft);margin:0 0 14px;}
+  .hero p{margin:0 0 12px;color:var(--ink-soft);font-size:15px;}
+  .warnbox{background:#fff8e6;border:1px solid #f2dfa0;border-radius:8px;padding:12px 16px;font-size:14px;color:#6b5310;margin:14px 0 0;}
+
+  .lvlgrid{display:grid;gap:12px;margin:0 0 24px;}
+  .lvlcard{background:var(--panel);border:1px solid var(--line);border-left:5px solid var(--line);border-radius:10px;padding:16px 18px;display:flex;align-items:center;gap:14px;text-align:left;cursor:pointer;width:100%;font-size:15px;transition:border-color .2s;}
+  .lvlcard:disabled{cursor:not-allowed;opacity:0.55;}
+  .lvlcard .num{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--ink-soft);flex-shrink:0;width:52px;}
+  .lvlcard .meta{flex:1;min-width:0;}
+  .lvlcard .meta strong{display:block;font-size:16px;color:var(--ink);}
+  .lvlcard .meta span{font-size:13.5px;color:var(--ink-soft);}
+  .lvlcard .state{font-family:var(--mono);font-size:12px;flex-shrink:0;color:var(--ink-soft);}
+  .lvlcard.acc-1{border-left-color:var(--slate);}
+  .lvlcard.acc-2{border-left-color:var(--orange);}
+  .lvlcard.acc-3{border-left-color:var(--blue);}
+  .lvlcard.acc-4{border-left-color:var(--purple);}
+  .lvlcard.is-done .state{color:var(--green);font-weight:700;}
+
+  /* ── level view ── */
+  .lvlhead{margin:26px 0 4px;display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;}
+  .lvltag{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#fff;border-radius:4px;padding:3px 10px;}
+  .lvlhead h2{margin:0;font-size:23px;}
+  .lvlintro{color:var(--ink-soft);font-size:15px;margin:8px 0 20px;}
+
+  .task{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:20px;margin:0 0 14px;}
+  .task h3{margin:0 0 4px;font-size:16.5px;}
+  .task .hint{font-size:13.5px;color:var(--ink-soft);margin:0 0 14px;}
+
+  .chips{display:flex;flex-wrap:wrap;gap:8px;}
+  .chip{border:1.5px solid var(--line);background:#f7fafc;border-radius:20px;padding:7px 15px;font-size:14px;color:var(--ink);cursor:pointer;transition:border-color .15s, background .15s;}
+  .chip:hover{border-color:var(--ink-soft);}
+  .chip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff;}
+  .reflect{font-size:14px;color:var(--ink-soft);background:#f2f5f9;border-radius:8px;padding:10px 14px;margin:12px 0 0;}
+  .reflect.hidden{display:none;}
+
+  textarea{width:100%;border:1.5px solid var(--line);border-radius:8px;padding:12px 14px;font-family:inherit;font-size:15px;line-height:1.55;color:var(--ink);resize:vertical;min-height:88px;background:#fdfefe;}
+  textarea:focus{outline:2px solid var(--blue);outline-offset:1px;border-color:var(--blue);}
+  .counter{font-family:var(--mono);font-size:11.5px;color:var(--ink-soft);text-align:right;margin:4px 0 0;}
+  .counter.ok{color:var(--green);font-weight:700;}
+  .optional-flag{font-family:var(--mono);font-size:11px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:0.05em;background:#eef2f7;border-radius:3px;padding:2px 6px;vertical-align:middle;margin-left:6px;}
+
+  details.eg{margin:12px 0 0;border:1px solid var(--line);border-radius:8px;background:#f8fafc;}
+  details.eg summary{cursor:pointer;padding:10px 14px;font-size:13.5px;font-weight:600;color:var(--ink-soft);list-style:none;}
+  details.eg summary::before{content:"▸ ";}
+  details.eg[open] summary::before{content:"▾ ";}
+  details.eg .egbody{padding:0 14px 12px;font-size:14px;color:var(--ink-soft);}
+  details.eg .egbody .sample{background:#fff;border:1px solid var(--line);border-radius:6px;padding:10px 14px;font-style:italic;margin:6px 0;}
+
+  .selfcheck label{display:flex;gap:10px;align-items:flex-start;font-size:14.5px;margin:0 0 8px;cursor:pointer;}
+  .selfcheck input{margin-top:4px;accent-color:var(--blue);}
+
+  .lvlnav{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:22px 0 0;flex-wrap:wrap;}
+  .btn{border:0;border-radius:8px;padding:12px 22px;font-size:15px;font-weight:700;cursor:pointer;}
+  .btn-primary{background:var(--ink);color:#fff;}
+  .btn-primary:hover{background:#1c2f4a;}
+  .btn-primary:disabled{background:#b9c4d3;cursor:not-allowed;}
+  .btn-ghost{background:transparent;color:var(--ink-soft);border:1.5px solid var(--line);}
+  .btn-ghost:hover{border-color:var(--ink-soft);}
+  .gate-note{font-size:13px;color:var(--ink-soft);margin:10px 0 0;}
+  .gate-note.hidden{display:none;}
+
+  /* ── review / export ── */
+  .review{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:20px;margin:0 0 14px;}
+  .review h4{font-family:var(--mono);font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-soft);margin:0 0 6px;border-bottom:1px solid var(--line);padding-bottom:6px;}
+  .review .qa{margin:0 0 12px;}
+  .review .q{font-size:13px;color:var(--ink-soft);margin:0;}
+  .review .a{font-size:15px;margin:2px 0 0;white-space:pre-wrap;}
+  .review .a.empty{color:#a3aebc;font-style:italic;}
+  .exportrow{display:flex;gap:10px;flex-wrap:wrap;margin:16px 0 0;}
+  .donebanner{background:#eefaf1;border:1px solid #bfe8cc;border-radius:8px;padding:14px 18px;color:#14532d;font-size:14.5px;margin:14px 0 0;}
+  .donebanner.hidden{display:none;}
+
+  /* ── copy modal fallback ── */
+  .modal{position:fixed;inset:0;background:rgba(14,26,43,0.55);display:flex;align-items:center;justify-content:center;padding:16px;z-index:50;}
+  .modal.hidden{display:none;}
+  .modal-inner{background:#fff;border-radius:12px;max-width:640px;width:100%;padding:22px;max-height:85vh;display:flex;flex-direction:column;gap:12px;}
+  .modal-inner h3{margin:0;font-size:18px;}
+  .modal-inner p{margin:0;font-size:14px;color:var(--ink-soft);}
+  .modal-inner textarea{flex:1;min-height:240px;font-family:var(--mono);font-size:12.5px;}
+
+  .view{display:none;}
+  .view.active{display:block;}
+  @media (prefers-reduced-motion: reduce){ *{transition:none !important;} }
+  @media (max-width:480px){
+    .hero{padding:22px 18px;}
+    .lvlhead h2{font-size:20px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="topbar-title">INRD511 · Week 2 · Look back. Get started. Ask.</div>
+    <button class="savebtn" id="saveAnytime" type="button">Save what I've written</button>
+  </div>
+  <div class="progress" id="progressBar" aria-hidden="true">
+    <span data-seg="1"></span><span data-seg="2"></span><span data-seg="3"></span><span data-seg="4"></span>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- ════════ HOME ════════ -->
+  <div class="view active" id="view-home">
+    <div class="hero">
+      <p class="kicker">INRD511 · Interaction Design Practice I · Week 2</p>
+      <h1>Look back. Get started. Ask.</h1>
+      <p style="font-style:italic;color:var(--ink-soft);margin:0 0 12px;">Titiro whakamuri, kōkiri whakamua. Look back to move forward.</p>
+      <p>Four levels, about 45 minutes. You finish with one document: your stocktake of last semester's feedback, your start on the assignment, and your question for POOL 1.</p>
+      <p>Work through the levels in order. Each one unlocks the next.</p>
+      <div class="warnbox"><strong>This page doesn't save by itself.</strong> If you close or refresh it, your writing is gone. Use <strong>Save what I've written</strong> (top right) any time, and save properly at Level 4.</div>
+    </div>
+
+    <div class="lvlgrid" id="lvlGrid">
+      <button class="lvlcard acc-1" data-go="1" type="button">
+        <span class="num">LV 1</span>
+        <span class="meta"><strong>LOOK BACK</strong><span>Take stock of last semester's feedback. 10 minutes.</span></span>
+        <span class="state" data-state="1">Start</span>
+      </button>
+      <button class="lvlcard acc-2" data-go="2" type="button" disabled>
+        <span class="num">LV 2</span>
+        <span class="meta"><strong>GET STARTED</strong><span>Unpack the brief, map your users, start your research. 18 minutes.</span></span>
+        <span class="state" data-state="2">Locked</span>
+      </button>
+      <button class="lvlcard acc-3" data-go="3" type="button" disabled>
+        <span class="num">LV 3</span>
+        <span class="meta"><strong>ASK</strong><span>Write your question for POOL 1. 10 minutes.</span></span>
+        <span class="state" data-state="3">Locked</span>
+      </button>
+      <button class="lvlcard acc-4" data-go="4" type="button" disabled>
+        <span class="num">LV 4</span>
+        <span class="meta"><strong>KEEP IT</strong><span>Read it back and save your document. 5 minutes.</span></span>
+        <span class="state" data-state="4">Locked</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ════════ LEVEL 1 · LOOK BACK ════════ -->
+  <div class="view" id="view-1">
+    <div class="lvlhead"><span class="lvltag" style="background:var(--slate);">Level 1 · LOOK BACK</span><h2>What happened last semester?</h2></div>
+    <p class="lvlintro">You finished DESN511 with a pile of feedback. Take stock of it before this semester adds more.</p>
+
+    <div class="task">
+      <h3>Where did your feedback mostly come from?</h3>
+      <p class="hint">Tap all that apply.</p>
+      <div class="chips" id="c-src" role="group" aria-label="Feedback sources"></div>
+      <div class="reflect hidden" id="r-src"></div>
+    </div>
+
+    <div class="task">
+      <h3>What did you usually do with it?</h3>
+      <p class="hint">Pick the closest. Nobody marks this.</p>
+      <div class="chips" id="c-did" role="group" aria-label="What you did with feedback"></div>
+      <div class="reflect hidden" id="r-did"></div>
+    </div>
+
+    <div class="task">
+      <h3>One piece of feedback that stuck with you</h3>
+      <p class="hint">What was it, and what did you do with it? A few sentences.</p>
+      <textarea id="t-stuck" rows="4" aria-label="Feedback that stuck with you"></textarea>
+      <p class="counter" id="n-stuck"></p>
+      <details class="eg"><summary>Stuck? See an example</summary><div class="egbody">
+        <div class="sample">"A tutor said my wireframes jumped straight to screens before the user flow made sense. It annoyed me at the time. On the next project I drew the flow first, and the screens got easier."</div>
+        <p>Yours can be shorter, rougher, or about something that went well.</p>
+      </div></details>
+    </div>
+
+    <div class="task">
+      <h3>One thing you'd handle differently this semester</h3>
+      <p class="hint">A sentence is enough.</p>
+      <textarea id="t-diff" rows="3" aria-label="One thing to handle differently"></textarea>
+      <p class="counter" id="n-diff"></p>
+      <details class="eg"><summary>Stuck? See an example</summary><div class="egbody">
+        <div class="sample">"Ask about anything I don't understand instead of nodding and hoping it becomes clear later."</div>
+      </div></details>
+    </div>
+
+    <div class="lvlnav">
+      <button class="btn btn-ghost" data-go="home" type="button">Back to levels</button>
+      <button class="btn btn-primary" id="fin-1" type="button" disabled>Finish Level 1</button>
+    </div>
+    <p class="gate-note" id="gate-1">To finish: pick at least one source, pick what you did, and write both boxes.</p>
+  </div>
+
+  <!-- ════════ LEVEL 2 · GET STARTED ════════ -->
+  <div class="view" id="view-2">
+    <div class="lvlhead"><span class="lvltag" style="background:var(--orange);">Level 2 · GET STARTED</span><h2>Make a real start on the assignment</h2></div>
+    <p class="lvlintro">In POOL 1 (Week 3) you present early work on three things: user personas and research, desk research into the context, and moodboards of possible 2027 trends. This level unpacks the brief and starts you on all three.</p>
+
+    <div class="task">
+      <h3>Where are you with the brief right now?</h3>
+      <p class="hint">Honest answer.</p>
+      <div class="chips" id="c-brief" role="group" aria-label="Where you are with the brief"></div>
+      <div class="reflect hidden" id="r-brief"></div>
+    </div>
+
+    <div class="task">
+      <h3>The brief in your own words</h3>
+      <p class="hint">Two sentences: what you're making, and what it has to do. Have the brief open next to this. If your version turns out wrong, that's a POOL 1 question.</p>
+      <textarea id="t-brief" rows="4" aria-label="The brief in your own words"></textarea>
+      <p class="counter" id="n-brief"></p>
+      <details class="eg"><summary>Stuck? See the shape of it</summary><div class="egbody">
+        <p>The shape: <em>I'm making [what] for [who]. It has to [the requirement that matters most] and I'll show my thinking through [the deliverable].</em></p>
+        <div class="sample">"I'm making a small interactive experience that helps first-years find quiet study spaces on campus. It has to work on a phone, and I'll show my thinking through my process journal."</div>
+        <p>That's an invented project. Yours comes from the real brief.</p>
+      </div></details>
+    </div>
+
+    <div class="task">
+      <h3>One thing that's unclear</h3>
+      <p class="hint">Something in the brief you'd want confirmed or explained. If nothing, write what you'd double-check.</p>
+      <textarea id="t-unclear" rows="2" aria-label="One unclear thing in the brief"></textarea>
+      <p class="counter" id="n-unclear"></p>
+      <details class="eg"><summary>Stuck? See an example</summary><div class="egbody">
+        <div class="sample">"The brief mentions the experience working across the event. Does that mean before and after the day itself, or only on site?"</div>
+        <p>Unclear things make good POOL 1 questions.</p>
+      </div></details>
+    </div>
+
+    <div class="task">
+      <h3>Who could this be for?</h3>
+      <p class="hint">List two or three user groups you can imagine. Rough labels are fine.</p>
+      <textarea id="t-groups" rows="2" aria-label="Possible user groups"></textarea>
+      <p class="counter" id="n-groups"></p>
+      <details class="eg"><summary>Stuck? See an example</summary><div class="egbody">
+        <div class="sample">"First-time attendees still studying; speakers preparing sessions; a studio sending a small team."</div>
+      </div></details>
+    </div>
+
+    <div class="task">
+      <h3>Your first research move</h3>
+      <p class="hint">These map onto POOL 1. Pick one to start today; you'll do all of them before Week 3.</p>
+      <div class="chips" id="c-srcmove" role="group" aria-label="First source move"></div>
+      <div class="reflect hidden" id="r-srcmove"></div>
+    </div>
+
+    <div class="task">
+      <h3>Name your source and note why it earns a place</h3>
+      <p class="hint">One or two sentences in your own words.</p>
+      <textarea id="t-source" rows="3" aria-label="Source and note"></textarea>
+      <p class="counter" id="n-source"></p>
+      <details class="eg"><summary>Stuck? See an example note</summary><div class="egbody">
+        <div class="sample">"Norman's chapter on affordances gives me language for why an interface can confuse people even when it technically works. Useful for explaining my design decisions, not just showing them."</div>
+      </div></details>
+    </div>
+
+    <div class="task">
+      <h3>Try the reference <span class="optional-flag">optional here, required in your document</span></h3>
+      <p class="hint">Write the APA reference as best you can. Rough is fine. Build it with the <a href="https://te-matapuna-aut-library.github.io/apa-reference-builder" target="_blank" rel="noopener">APA Reference Builder</a>, or check it later with the APA Referencing Agent in Canvas.</p>
+      <textarea id="t-ref" rows="2" aria-label="APA reference attempt"></textarea>
+      <details class="eg"><summary>What a finished one looks like</summary><div class="egbody">
+        <div class="sample">Norman, D. (2013). <em>The design of everyday things</em> (Rev. ed.). Basic Books.</div>
+        <p>Author, year, title in italics, publisher. The agent will pick up anything that's off.</p>
+      </div></details>
+    </div>
+
+    <div class="task">
+      <h3>Pick one group: their situation</h3>
+      <p class="hint">Two sentences on what's going on for them. This is the seed of a persona.</p>
+      <textarea id="t-context" rows="4" aria-label="First context lines"></textarea>
+      <p class="counter" id="n-context"></p>
+      <details class="eg"><summary>Stuck? See an example</summary><div class="egbody">
+        <div class="sample">"This is for first-year students new to the city. Most are juggling study with part-time work and don't yet know where anything is, so anything that adds effort gets abandoned fast."</div>
+        <p>The second sentence describes their situation. That's what context writing does.</p>
+      </div></details>
+    </div>
+
+    <div class="task">
+      <h3>Your next step before Week 3</h3>
+      <p class="hint">One line: the next thing you want to find out, and where you'll look. The starter questions cover all three strands.</p>
+      <textarea id="t-nextstep" rows="2" aria-label="Next research step before Week 3"></textarea>
+      <p class="counter" id="n-nextstep"></p>
+      <details class="eg"><summary>Starter questions for each strand</summary><div class="egbody">
+        <p><strong>Users (personas):</strong> Who attends an event like this? What do they want from it? What gets in their way?</p>
+        <p><strong>Context (desk research):</strong> What comparable events exist? Who's speaking, and on what? What's happening in design in Aotearoa right now?</p>
+        <p><strong>Trends (moodboard):</strong> Which design systems and styles are gaining ground? What reads as 2027 rather than 2024?</p>
+      </div></details>
+    </div>
+
+    <div class="lvlnav">
+      <button class="btn btn-ghost" data-go="home" type="button">Back to levels</button>
+      <button class="btn btn-primary" id="fin-2" type="button" disabled>Finish Level 2</button>
+    </div>
+    <p class="gate-note" id="gate-2">To finish: make both choices and fill every box. The reference attempt is optional.</p>
+  </div>
+
+  <!-- ════════ LEVEL 3 · ASK ════════ -->
+  <div class="view" id="view-3">
+    <div class="lvlhead"><span class="lvltag" style="background:var(--blue);">Level 3 · ASK</span><h2>Write the question you'll bring to POOL 1</h2></div>
+    <p class="lvlintro">In POOL 1 you present to a small group, and you take one question with you. The question aims the feedback you get.</p>
+
+    <div class="task">
+      <h3>What do you most want a response on in POOL 1?</h3>
+      <p class="hint">Pick one; the others can wait.</p>
+      <div class="chips" id="c-focus" role="group" aria-label="Feedback focus"></div>
+      <div class="reflect hidden" id="r-focus"></div>
+    </div>
+
+    <div class="task">
+      <h3>Who's best placed to answer it?</h3>
+      <p class="hint">Pick one for this question.</p>
+      <div class="chips" id="c-who" role="group" aria-label="Who could answer"></div>
+      <div class="reflect hidden" id="r-who"></div>
+    </div>
+
+    <div class="task">
+      <h3>Now write it, one sentence</h3>
+      <p class="hint">A shape that works: <em>Can you look at [the specific thing] and tell me [what you want to know about it]?</em></p>
+      <textarea id="t-question" rows="3" aria-label="Your question"></textarea>
+      <p class="counter" id="n-question"></p>
+      <details class="eg"><summary>Weak and strong versions</summary><div class="egbody">
+        <p><strong>Weak:</strong></p>
+        <div class="sample">"Is this good?"</div>
+        <p>Gets you "yeah, it's fine".</p>
+        <p><strong>Strong:</strong></p>
+        <div class="sample">"Can you look at my two personas and tell me which one feels least like a real person, and why?"</div>
+        <p>Names the thing, says what response would help, answerable in two minutes.</p>
+      </div></details>
+    </div>
+
+    <div class="task">
+      <h3>Check it against three tests</h3>
+      <p class="hint">If one doesn't hold, edit the question until it does.</p>
+      <div class="selfcheck">
+        <label><input type="checkbox" class="sc" id="sc1"> It names one specific thing, not "my work" in general.</label>
+        <label><input type="checkbox" class="sc" id="sc2"> It says what kind of response would help.</label>
+        <label><input type="checkbox" class="sc" id="sc3"> Someone could answer it in a couple of minutes.</label>
+      </div>
+    </div>
+
+    <div class="lvlnav">
+      <button class="btn btn-ghost" data-go="home" type="button">Back to levels</button>
+      <button class="btn btn-primary" id="fin-3" type="button" disabled>Finish Level 3</button>
+    </div>
+    <p class="gate-note" id="gate-3">To finish: make both choices, write the question, and tick all three tests.</p>
+  </div>
+
+  <!-- ════════ LEVEL 4 · KEEP IT ════════ -->
+  <div class="view" id="view-4">
+    <div class="lvlhead"><span class="lvltag" style="background:var(--purple);">Level 4 · KEEP IT</span><h2>Read it back, then save it</h2></div>
+    <p class="lvlintro">Everything you wrote today. Read it once; you'll read it again in Week 13.</p>
+
+    <div id="reviewMount"></div>
+
+    <div class="task">
+      <h3>Anything to add before you save? <span class="optional-flag">optional</span></h3>
+      <p class="hint">A thought, a doubt, a note to your Week 13 self.</p>
+      <textarea id="t-final" rows="3" aria-label="Final note"></textarea>
+    </div>
+
+    <div class="task">
+      <h3>Save it somewhere that lasts</h3>
+      <p class="hint">Download or copy, then paste it into your process journal or Miro today; it starts the evidence trail your journal carries this semester. The page forgets everything when it closes.</p>
+      <div class="exportrow">
+        <button class="btn btn-primary" id="btnDownload" type="button">Download as a text file</button>
+        <button class="btn btn-ghost" id="btnCopy" type="button">Copy everything</button>
+      </div>
+      <div class="donebanner hidden" id="doneBanner"></div>
+    </div>
+
+    <div class="lvlnav">
+      <button class="btn btn-ghost" data-go="home" type="button">Back to levels</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- copy fallback modal -->
+<div class="modal hidden" id="copyModal" role="dialog" aria-modal="true" aria-label="Copy your work">
+  <div class="modal-inner">
+    <h3>Copy your work</h3>
+    <p>Select all the text below (it's already selected), copy it, and paste it into your journal.</p>
+    <textarea id="copyModalText" readonly></textarea>
+    <div class="exportrow">
+      <button class="btn btn-primary" id="copyModalClose" type="button">Done</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ─── state ─── */
+  var state = {
+    src: [], did: null, stuck: "", diff: "",
+    briefstate: null, brief: "", unclear: "", groups: "", srcmove: null, source: "", ref: "", context: "", nextstep: "",
+    focus: null, who: null, question: "", checks: [false,false,false],
+    finalnote: "",
+    done: [false,false,false,false]
+  };
+
+  var MIN = { stuck: 30, diff: 15, brief: 40, unclear: 12, groups: 15, source: 30, context: 40, nextstep: 10, question: 15 };
+
+  /* ─── chip data with reflect-back lines ─── */
+  var CHIPS = {
+    src: { el:"c-src", reflect:"r-src", multi:true, opts:[
+      ["crit","A lecturer or tutor in a crit"],
+      ["written","Written comments on a submission"],
+      ["peers","Classmates in the studio"],
+      ["advisor","A Learning Advisor or librarian"],
+      ["outside","Friends or family"],
+      ["grade","Mostly the grade itself"]
+    ], line:function(sel){
+      if(sel.indexOf("grade")>-1 && sel.length===1) return "A grade shows where you landed. POOLs give you feedback you can act on before grades.";
+      if(sel.length>=3) return "Several directions is good. This semester you'll practise weighing them when they disagree.";
+      return "Good. Now you know where to go for more.";
+    }},
+    did: { el:"c-did", reflect:"r-did", multi:false, opts:[
+      ["moved","Read it once and moved on"],
+      ["changed","Changed the piece it was about"],
+      ["next","Used it on the next project"],
+      ["silent","Disagreed but said nothing"],
+      ["asked","Asked a follow-up question"],
+      ["forgot","Honestly can't remember"]
+    ], line:function(v){
+      var m = {
+        moved:"Common. This semester's routine is built to change it.",
+        changed:"Feedback became a change. This semester you'll add the habit of saying why.",
+        next:"The strongest habit: feedback carried into the next project.",
+        silent:"Disagreeing is fine. This semester you'll practise saying so, with reasons.",
+        asked:"Asking back is a strong habit. Keep it.",
+        forgot:"Fair enough. This semester you'll have a written trail."
+      };
+      return m[v] || "";
+    }},
+    briefstate: { el:"c-brief", reflect:"r-brief", multi:false, opts:[
+      ["close","Read it closely"],
+      ["skim","Skimmed it"],
+      ["not","Haven't opened it yet"]
+    ], line:function(v){
+      var m = {
+        close:"Good. The next box will test that.",
+        skim:"Open it beside this page now.",
+        not:"Stop here, open it in Canvas, read it once, then come back."
+      };
+      return m[v] || "";
+    }},
+    srcmove: { el:"c-srcmove", reflect:"r-srcmove", multi:false, opts:[
+      ["users","Research your target users (feeds your personas)"],
+      ["context","Desk research into the context: conferences, speakers, design in Aotearoa"],
+      ["trends","Trend research: design systems and styles heading into 2027 (feeds your moodboard)"],
+      ["reuse","Revisit something from DESN511 worth reusing"]
+    ], line:function(v){
+      var m = {
+        users:"The seed of your personas. Who turns up to an event like this, and what do they need from it?",
+        context:"Comparable events, who's speaking, design in Aotearoa now. Record where each thing came from.",
+        trends:"Collect moodboard candidates and note why each reads as a 2027 direction.",
+        reuse:"Semester 1 work counts. Note what you're carrying over and why it still holds."
+      };
+      return m[v] || "";
+    }},
+    focus: { el:"c-focus", reflect:"r-focus", multi:false, opts:[
+      ["personas","My personas and user research"],
+      ["context","My desk research into the context"],
+      ["moodboard","My moodboard and 2027 trends"],
+      ["fit","How the three parts fit together"],
+      ["briefread","Whether I've understood the brief"],
+      ["other","Something else"]
+    ], line:function(v){
+      var m = {
+        personas:"Ask whether yours read as real people.",
+        context:"Ask where the gaps are: events, speakers, design in Aotearoa.",
+        moodboard:"Ask whether the board reads as one direction, and whether the link to your own work shows.",
+        fit:"Ask whether your group sees one project or three tasks.",
+        briefread:"The most useful early question. Misreading the brief is common and fixable in Week 2.",
+        other:"Make it specific in the question below."
+      };
+      return m[v] || "";
+    }},
+    who: { el:"c-who", reflect:"r-who", multi:false, opts:[
+      ["lecturer","My lecturer, in POOL 1"],
+      ["classmate","A classmate"],
+      ["la","Craig or another Learning Advisor"],
+      ["librarian","A librarian"]
+    ], line:function(v){
+      var m = {
+        lecturer:"Right for the brief, the direction, or what strong work looks like here.",
+        classmate:"Right for fresh eyes, and for practising feedback both ways.",
+        la:"Right for writing, structure, referencing, or working with feedback. Book through the library site.",
+        librarian:"Right for finding and judging sources."
+      };
+      return m[v] || "";
+    }}
+  };
+
+  /* ─── build chips ─── */
+  Object.keys(CHIPS).forEach(function(key){
+    var cfg = CHIPS[key];
+    var mount = document.getElementById(cfg.el);
+    cfg.opts.forEach(function(opt){
+      var b = document.createElement("button");
+      b.type = "button"; b.className = "chip"; b.textContent = opt[1];
+      b.setAttribute("aria-pressed","false");
+      b.addEventListener("click", function(){
+        if(cfg.multi){
+          var i = state[key].indexOf(opt[0]);
+          if(i>-1){ state[key].splice(i,1); b.setAttribute("aria-pressed","false"); }
+          else { state[key].push(opt[0]); b.setAttribute("aria-pressed","true"); }
+        } else {
+          state[key] = opt[0];
+          mount.querySelectorAll(".chip").forEach(function(c){ c.setAttribute("aria-pressed","false"); });
+          b.setAttribute("aria-pressed","true");
+        }
+        var r = document.getElementById(cfg.reflect);
+        var has = cfg.multi ? state[key].length>0 : !!state[key];
+        if(has){ r.textContent = cfg.line(state[key]); r.classList.remove("hidden"); }
+        else { r.classList.add("hidden"); }
+        validate();
+      });
+      mount.appendChild(b);
+    });
+  });
+
+  /* ─── text fields ─── */
+  var FIELDS = [
+    ["t-stuck","stuck","n-stuck"], ["t-diff","diff","n-diff"],
+    ["t-brief","brief","n-brief"], ["t-unclear","unclear","n-unclear"], ["t-groups","groups","n-groups"], ["t-source","source","n-source"], ["t-nextstep","nextstep","n-nextstep"],
+    ["t-ref","ref",null], ["t-context","context","n-context"],
+    ["t-question","question","n-question"], ["t-final","finalnote",null]
+  ];
+  FIELDS.forEach(function(f){
+    var ta = document.getElementById(f[0]);
+    ta.addEventListener("input", function(){
+      state[f[1]] = ta.value;
+      if(f[2]){
+        var n = document.getElementById(f[2]);
+        var min = MIN[f[1]];
+        var len = ta.value.trim().length;
+        if(len===0){ n.textContent=""; n.className="counter"; }
+        else if(len < min){ n.textContent = "Keep going, a little more"; n.className="counter"; }
+        else { n.textContent = "That's enough, add more if you want"; n.className="counter ok"; }
+      }
+      validate();
+    });
+  });
+
+  document.querySelectorAll(".sc").forEach(function(cb, i){
+    cb.addEventListener("change", function(){ state.checks[i] = cb.checked; validate(); });
+  });
+
+  /* ─── gating ─── */
+  function lvlReady(n){
+    if(n===1) return state.src.length>0 && !!state.did && state.stuck.trim().length>=MIN.stuck && state.diff.trim().length>=MIN.diff;
+    if(n===2) return !!state.briefstate && state.brief.trim().length>=MIN.brief && state.unclear.trim().length>=MIN.unclear && state.groups.trim().length>=MIN.groups && !!state.srcmove && state.source.trim().length>=MIN.source && state.context.trim().length>=MIN.context && state.nextstep.trim().length>=MIN.nextstep;
+    if(n===3) return !!state.focus && !!state.who && state.question.trim().length>=MIN.question && state.checks.every(Boolean);
+    return true;
+  }
+
+  function validate(){
+    [1,2,3].forEach(function(n){
+      var btn = document.getElementById("fin-"+n);
+      if(btn){ btn.disabled = !lvlReady(n); }
+      var gate = document.getElementById("gate-"+n);
+      if(gate){ gate.classList.toggle("hidden", lvlReady(n)); }
+    });
+  }
+
+  /* ─── navigation ─── */
+  function show(id){
+    document.querySelectorAll(".view").forEach(function(v){ v.classList.remove("active"); });
+    document.getElementById("view-"+id).classList.add("active");
+    window.scrollTo(0,0);
+    if(id==="4"){ renderReview(); }
+  }
+
+  document.querySelectorAll("[data-go]").forEach(function(el){
+    el.addEventListener("click", function(){
+      var target = el.getAttribute("data-go");
+      if(el.disabled) return;
+      show(target);
+    });
+  });
+
+  function refreshHome(){
+    var labels = {1:"LOOK BACK",2:"GET STARTED",3:"ASK",4:"KEEP IT"};
+    [1,2,3,4].forEach(function(n){
+      var card = document.querySelector('.lvlcard[data-go="'+n+'"]');
+      var st = card.querySelector(".state");
+      var unlocked = (n===1) || state.done[n-2];
+      card.disabled = !unlocked;
+      card.classList.toggle("is-done", state.done[n-1]);
+      st.textContent = state.done[n-1] ? "Done ✓" : (unlocked ? (n===4 ? "Save" : "Start") : "Locked");
+    });
+    var segs = document.querySelectorAll("#progressBar span");
+    segs.forEach(function(s,i){
+      s.className = state.done[i] ? ("done-"+(i+1)) : "";
+    });
+  }
+
+  [1,2,3].forEach(function(n){
+    document.getElementById("fin-"+n).addEventListener("click", function(){
+      state.done[n-1] = true;
+      refreshHome();
+      show("home");
+    });
+  });
+
+  /* ─── review + export ─── */
+  function chipLabel(key, val){
+    var opts = CHIPS[key].opts;
+    for(var i=0;i<opts.length;i++){ if(opts[i][0]===val) return opts[i][1]; }
+    return "";
+  }
+  function chipLabels(key, vals){
+    return vals.map(function(v){ return chipLabel(key,v); }).join("; ");
+  }
+  function orBlank(s){ return s && s.trim() ? s.trim() : ""; }
+
+  function docSections(){
+    return [
+      ["LOOK BACK", [
+        ["Where my feedback mostly came from", chipLabels("src", state.src)],
+        ["What I usually did with it", state.did ? chipLabel("did", state.did) : ""],
+        ["Feedback that stuck with me", orBlank(state.stuck)],
+        ["One thing I'll handle differently this semester", orBlank(state.diff)]
+      ]],
+      ["GETTING STARTED", [
+        ["Where I was with the brief", state.briefstate ? chipLabel("briefstate", state.briefstate) : ""],
+        ["The brief in my own words", orBlank(state.brief)],
+        ["One thing that's unclear", orBlank(state.unclear)],
+        ["Who this could be for", orBlank(state.groups)],
+        ["My first research move", state.srcmove ? chipLabel("srcmove", state.srcmove) : ""],
+        ["My research and why it earns a place", orBlank(state.source)],
+        ["My reference attempt (check with the APA Referencing Agent)", orBlank(state.ref)],
+        ["One group's situation", orBlank(state.context)],
+        ["My next step before Week 3", orBlank(state.nextstep)]
+      ]],
+      ["MY QUESTION FOR POOL 1", [
+        ["What I most want a response on", state.focus ? chipLabel("focus", state.focus) : ""],
+        ["Who I'll take it to", state.who ? chipLabel("who", state.who) : ""],
+        ["The question", orBlank(state.question)]
+      ]],
+      ["ADDED AT THE END", [
+        ["Note to my Week 13 self", orBlank(state.finalnote)]
+      ]]
+    ];
+  }
+
+  function renderReview(){
+    var mount = document.getElementById("reviewMount");
+    mount.innerHTML = "";
+    docSections().forEach(function(sec){
+      if(sec[0]==="ADDED AT THE END") return;
+      var box = document.createElement("div");
+      box.className = "review";
+      var h = document.createElement("h4"); h.textContent = sec[0]; box.appendChild(h);
+      sec[1].forEach(function(qa){
+        var wrap = document.createElement("div"); wrap.className="qa";
+        var q = document.createElement("p"); q.className="q"; q.textContent = qa[0]; wrap.appendChild(q);
+        var a = document.createElement("p");
+        if(qa[1]){ a.className="a"; a.textContent = qa[1]; }
+        else { a.className="a empty"; a.textContent = "(left blank)"; }
+        wrap.appendChild(a);
+        box.appendChild(wrap);
+      });
+      mount.appendChild(box);
+    });
+  }
+
+  function buildText(){
+    var d = new Date();
+    var lines = [];
+    lines.push("INRD511 WEEK 2: LOOK BACK. GET STARTED. ASK.");
+    lines.push("Saved: " + d.toDateString());
+    lines.push("");
+    docSections().forEach(function(sec){
+      var hasContent = sec[1].some(function(qa){ return qa[1]; });
+      if(!hasContent && sec[0]==="ADDED AT THE END") return;
+      lines.push("=== " + sec[0] + " ===");
+      sec[1].forEach(function(qa){
+        lines.push(qa[0] + ":");
+        lines.push(qa[1] ? qa[1] : "(left blank)");
+        lines.push("");
+      });
+    });
+    lines.push("Keep this in your process journal. You'll read it again in Week 13.");
+    return lines.join("\n");
+  }
+
+  function markSaved(msg){
+    state.done[3] = true;
+    refreshHome();
+    var b = document.getElementById("doneBanner");
+    b.textContent = msg + " Paste or file it in your process journal today, then bring your question to POOL 1. This is a feedback rich environment; you have everything you need.";
+    b.classList.remove("hidden");
+  }
+
+  function doDownload(){
+    var text = buildText();
+    var blob = new Blob([text], {type:"text/plain;charset=utf-8"});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url; a.download = "inrd511-week2-" + new Date().toISOString().slice(0,10) + ".txt";
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 2000);
+    markSaved("Downloaded.");
+  }
+
+  var modalIsFinal = false;
+  function openCopyModal(text){
+    var m = document.getElementById("copyModal");
+    var ta = document.getElementById("copyModalText");
+    ta.value = text;
+    m.classList.remove("hidden");
+    ta.focus(); ta.select();
+  }
+
+  function doCopy(){
+    var text = buildText();
+    modalIsFinal = true;
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(function(){
+        markSaved("Copied to your clipboard.");
+      }, function(){ openCopyModal(text); });
+    } else {
+      openCopyModal(text);
+    }
+  }
+
+  document.getElementById("btnDownload").addEventListener("click", doDownload);
+  document.getElementById("btnCopy").addEventListener("click", doCopy);
+  document.getElementById("copyModalClose").addEventListener("click", function(){
+    document.getElementById("copyModal").classList.add("hidden");
+    if(modalIsFinal){ markSaved("Copied."); }
+  });
+  document.getElementById("saveAnytime").addEventListener("click", function(){
+    modalIsFinal = false;
+    var text = buildText();
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(function(){
+        alert("Copied everything you've written so far. Paste it somewhere safe.");
+      }, function(){ openCopyModal(text); });
+    } else {
+      openCopyModal(text);
+    }
+  });
+
+  validate();
+  refreshHome();
+})();
+</script>
+</body>
+</html>
