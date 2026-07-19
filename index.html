@@ -244,7 +244,7 @@
       <p class="counter" id="n-brief"></p>
       <details class="eg"><summary>Stuck? See the shape of it</summary><div class="egbody">
         <p>The shape: <em>I'm making [what] for [who]. It has to [the requirement that matters most] and I'll show my thinking through [the deliverable].</em></p>
-        <div class="sample">"I'm making a small interactive experience that helps first-years find quiet study spaces on campus. It has to work on a phone, and I'll show my thinking through my process journal."</div>
+        <div class="sample">"I'm making a small interactive experience that helps first-years find quiet study spaces on campus. It has to work on a phone, and I'll show my thinking in my workbook."</div>
         <p>That's an invented project. Yours comes from the real brief.</p>
       </div></details>
     </div>
@@ -262,11 +262,11 @@
 
     <div class="task">
       <h3>Who could this be for?</h3>
-      <p class="hint">List two or three user groups you can imagine. Rough labels are fine.</p>
+      <p class="hint">The brief sets your users: young people in Aotearoa aged 18 to 30. List two or three groups within that.</p>
       <textarea id="t-groups" rows="2" aria-label="Possible user groups"></textarea>
       <p class="counter" id="n-groups"></p>
       <details class="eg"><summary>Stuck? See an example</summary><div class="egbody">
-        <div class="sample">"First-time attendees still studying; speakers preparing sessions; a studio sending a small team."</div>
+        <div class="sample">"Design students in their first year; junior designers in their first jobs; self-taught creatives thinking about study."</div>
       </div></details>
     </div>
 
@@ -393,7 +393,7 @@
 
     <div class="task">
       <h3>Save it somewhere that lasts</h3>
-      <p class="hint">Download or copy, then paste it into your process journal or Miro today; it starts the evidence trail your journal carries this semester. The page forgets everything when it closes.</p>
+      <p class="hint">Download or copy, then paste it into your FigJam workbook today. POOL feedback gets documented there with a reflection and an action plan; this document is the Week 2 entry. The page forgets everything when it closes.</p>
       <div class="exportrow">
         <button class="btn btn-primary" id="btnDownload" type="button">Download as a text file</button>
         <button class="btn btn-ghost" id="btnCopy" type="button">Copy everything</button>
@@ -717,7 +717,7 @@
         lines.push("");
       });
     });
-    lines.push("Keep this in your process journal. You'll read it again in Week 13.");
+    lines.push("Keep this in your FigJam workbook. You'll read it again in Week 13.");
     return lines.join("\n");
   }
 
@@ -725,7 +725,7 @@
     state.done[3] = true;
     refreshHome();
     var b = document.getElementById("doneBanner");
-    b.textContent = msg + " Paste or file it in your process journal today, then bring your question to POOL 1. This is a feedback rich environment; you have everything you need.";
+    b.textContent = msg + " Paste it into your FigJam workbook today, then bring your question to POOL 1. This is a feedback rich environment; you have everything you need.";
     b.classList.remove("hidden");
   }
 
